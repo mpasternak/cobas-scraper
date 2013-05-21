@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 
 import requests, bs4, os
-import local_settings as settings
 
 ROOT = '/PSMWebModule/action'
 LOGIN = ROOT + '/j_security_check'
@@ -12,8 +11,8 @@ NOT_FOUND = 'Nie znaleziono zleceń'
 PESEL_MENU = 'Szukaj po peselu'
 
 
-class CobasServer:
-    def __init__(self, host, port=443):
+class Server:
+    def __init__(self, host='192.168.0.128', port=443):
         self.host = host
         self.port = port
         self.session = requests.Session()
@@ -21,13 +20,25 @@ class CobasServer:
     def url(self, path):
         return 'https://%s:%s%s' % (self.host, self.port, path)
 
-    def login(self, username, password):
+    def login(self, username=None, password=None):
+        try:
+            import local_settings as settings
+        except ImportError:
+            pass
+
+        if username is None:
+            username = os.getenv('COBAS_USER', settings.COBAS_USER)
+
+        if password is None:
+            password = os.getenv('COBAS_PASSWORD', settings.COBAS_PASSWORD)
+
         res = self.session.get(self.url(''), verify=False)
         res = self.session.post(
             self.url(LOGIN), 
             params=dict(j_username=username, j_password=password),
             verify=False,
             headers={'content-type': 'application/x-www-form-urlencoded'})
+
         assert(PESEL_MENU in res.content)
 
     def find_by_name(self, name):
@@ -73,6 +84,7 @@ class CobasServer:
             if len(values)>=2:
                 if values[0] in [u'Wyniki badań', u'Autoryzacja']:
                     continue
+
                 ret[values[0]] = {'value': values[1]}
 
                 if 'H' in values:
@@ -85,14 +97,19 @@ class CobasServer:
                     ret[values[0]]['units'] = values[2]
 
                 if len(values)>3:
-                    ret[values[0]]['range'] = values[3]
+                    _range = values[3].replace("[", "").replace("]", "").strip().split("-")
+                    ret[values[0]]['range-min'] = _range[0].strip()
+                    ret[values[0]]['range-max'] = _range[1].strip()
 
         return ret
 
     def find_by_pesel(self, pesel):
         res = self.session.get(
             self.url(SEARCH_BY_PESEL),
-            params=dict(pid=pesel))
+            params=dict(pid=pesel, showAll=1), verify=False)
+        if PESEL_MENU not in res.content:
+            print res.content
+            raise Exception
         if NOT_FOUND in res.content:
             return
         return self.parse_name_table(res.content, width="650px")
@@ -100,15 +117,16 @@ class CobasServer:
 
     def get_single_result(self, url):
         res = self.session.get(
-            self.url(url))
+            self.url(url), verify=False)
         return self.parse_single_result_table(res.content)
 
+
 def cobas_demo():
-    c = CobasServer('192.168.0.128')
-    c.login(os.getenv('COBAS_USER', settings.COBAS_USER),
-            os.getenv('COBAS_PASSWORD', settings.COBAS_PASSWORD))
+    c = Server()
+    c.login()
 
     print c.get_single_result('/PSMWebModule/action/ShowSingleResult?location=H&registerDate=20130513053100&view=FULL&sampleId=937828')
+
     for row in c.find_by_name('Kowalski'):
         print row
 
