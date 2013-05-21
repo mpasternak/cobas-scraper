@@ -12,4 +12,5 @@ for sample in c.find_by_pesel(sys.argv[1]):
     badanie = c.get_single_result(sample['url'])
 
     for b in badanie.keys():
-        print sys.argv[1], '\t', sample['Data i godzina rejestracji'], '\t', sample['ID zlecenia'], '\t', b, '\t', badanie[b]['value']
+        values = [sys.argv[1], sample['Data i godzina rejestracji'], sample['ID zlecenia'], b, badanie[b]['value']]
+        print "\t".join([value.encode('utf-8') for value in values])

@@ -101,9 +101,15 @@ class Server:
                     ret[values[0]]['units'] = values[2]
 
                 if len(values)>3:
-                    _range = values[3].replace("[", "").replace("]", "").strip().split("-")
-                    ret[values[0]]['range-min'] = _range[0].strip()
-                    ret[values[0]]['range-max'] = _range[1].strip()
+                    _range = values[3]
+
+                    if _range.find(">=")>-1:
+                        ret[values[0]]['range-min'] = '0'
+                        ret[values[0]]['range-max'] = _range.replace(">=", "").strip()
+                    else:
+                        _range = _range.replace("[", "").replace("]", "").strip().split("-")
+                        ret[values[0]]['range-min'] = _range[0].strip()
+                        ret[values[0]]['range-max'] = _range[1].strip()
 
         return ret
 
