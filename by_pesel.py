@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 Get patient information by patient ID
 
@@ -22,8 +24,9 @@ try:
 except IndexError:
     date_limit = None
 
-y, m, d = date_limit.split('-')
-date_limit = datetime.date(int(y), int(m), int(d))
+if date_limit is not None:
+    y, m, d = date_limit.split('-')
+    date_limit = datetime.date(int(y), int(m), int(d))
 
 for sample in c.find_by_pesel(sys.argv[1]):
 
@@ -32,11 +35,12 @@ for sample in c.find_by_pesel(sys.argv[1]):
     for b in badanie.keys():
         data, czas = sample[GODZINA_REJESTRACJI].split(" ")
 
-        y, m, d = data.split('-')
-        d = datetime.date(int(y), int(m), int(d))
+        if date_limit is not None:
+            y, m, d = data.split('-')
+            d = datetime.date(int(y), int(m), int(d))
 
-        if d < date_limit:
-            sys.exit(0)
+            if d < date_limit:
+                sys.exit(0)
 
-        values = [sys.argv[1], data, czas, sample['ID zlecenia'], b, badanie[b]['value'], badanie[b]['units']]
+        values = [sys.argv[1], data, czas, sample['ID zlecenia'], b, badanie[b]['value'], badanie[b].get('units', '')]
         print "\t".join([value.encode('utf-8') for value in values])
