@@ -1,4 +1,6 @@
 *.py[cod]
+*~
+.idea
 
 local_settings.py
 
