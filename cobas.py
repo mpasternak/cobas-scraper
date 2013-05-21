@@ -1,5 +1,9 @@
 # -*- encoding: utf-8 -*-
 
+"""
+Library for web scraping of data from Cobas(TM) analyzer web ui by Roche Laboratories(TM)
+"""
+
 import requests, bs4, os
 
 ROOT = '/PSMWebModule/action'

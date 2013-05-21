@@ -1,3 +1,7 @@
+"""
+Get patient information by patient ID
+"""
+
 import cobas
 import sys
 
