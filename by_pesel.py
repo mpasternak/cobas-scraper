@@ -8,6 +8,7 @@ by_pesel.py [PATIENT ID] [DATE] -- to limit to a certain date
 
 import cobas
 import sys
+import datetime
 
 GODZINA_REJESTRACJI = 'Data i godzina rejestracji'
 
@@ -21,14 +22,21 @@ try:
 except IndexError:
     date_limit = None
 
-for sample in c.find_by_pesel(sys.argv[1]):
+y, m, d = date_limit.split('-')
+date_limit = datetime.date(int(y), int(m), int(d))
 
-    if date_limit:
-        if sample[GODZINA_REJESTRACJI].startswith(date_limit):
-            break
+for sample in c.find_by_pesel(sys.argv[1]):
 
     badanie = c.get_single_result(sample['url'])
 
     for b in badanie.keys():
-        values = [sys.argv[1], sample[GODZINA_REJESTRACJI], sample['ID zlecenia'], b, badanie[b]['value'], badanie[b]['units']]
+        data, czas = sample[GODZINA_REJESTRACJI].split(" ")
+
+        y, m, d = data.split('-')
+        d = datetime.date(int(y), int(m), int(d))
+
+        if d < date_limit:
+            sys.exit(0)
+
+        values = [sys.argv[1], data, czas, sample['ID zlecenia'], b, badanie[b]['value'], badanie[b]['units']]
         print "\t".join([value.encode('utf-8') for value in values])
