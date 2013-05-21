@@ -118,14 +118,13 @@ class Server:
             return
         return self.parse_name_table(res.content, width="650px")
 
-
     def get_single_result(self, url):
         res = self.session.get(
             self.url(url), verify=False)
         return self.parse_single_result_table(res.content)
 
 
-def cobas_demo():
+def cobas_test():
     c = Server()
     c.login()
 
@@ -136,4 +135,4 @@ def cobas_demo():
 
 
 if __name__ == "__main__":
-    cobas_demo()
+    cobas_test()
