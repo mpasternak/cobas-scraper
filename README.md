@@ -1,4 +1,4 @@
 cobas-scraper
 =============
 
-Scrape data from Cobas analyzer web UI with Python, requests and BeautifulSoup
+Scrape data from Cobas(TM) analyzer web UI by Roche Laboratories(TM) with Python, requests and BeautifulSoup
