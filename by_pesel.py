@@ -25,7 +25,11 @@ except IndexError:
     date_limit = None
 
 if date_limit is not None:
-    y, m, d = date_limit.split('-')
+    try:
+        y, m, d = date_limit.split('-')
+    except ValueError:
+        y, m, d = date_limit.split('/')
+
     date_limit = datetime.date(int(y), int(m), int(d))
 
 for sample in c.find_by_pesel(sys.argv[1]):
@@ -42,5 +46,5 @@ for sample in c.find_by_pesel(sys.argv[1]):
             if d < date_limit:
                 sys.exit(0)
 
-        values = [sys.argv[1], data.replace("-", "/"), czas, sample['ID zlecenia'], b, badanie[b]['value'], badanie[b].get('units', '')]
+        values = [sys.argv[1], data, czas, sample['ID zlecenia'], b, badanie[b]['value'], badanie[b].get('units', '')]
         print "\t".join([value.encode('utf-8') for value in values])
