@@ -13,7 +13,7 @@ c.login()
 
 plasma = urine = None
 
-for sample in c.find_by_name(sys.argv[1]):
+for sample in c.find_by_name(unicode(sys.argv[1], 'utf-8')):
     badanie = c.get_single_result(sample['url'])
 
     if CREATININE in badanie.keys() and plasma is None:

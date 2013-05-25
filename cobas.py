@@ -48,7 +48,7 @@ class Server:
     def find_by_name(self, name):
         res = self.session.get(
             self.url(SEARCH_BY_NAME),
-            params=dict(name=name, showAll=1))
+            params=dict(name=name.encode('iso8859-2'), showAll=1))
         if NOT_FOUND in res.content:
             return
         return self.parse_name_table(res.content, width="650px")
