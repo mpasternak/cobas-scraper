@@ -13,7 +13,13 @@ c.login()
 
 plasma = urine = None
 
-for sample in c.find_by_name(unicode(sys.argv[1], 'utf-8')):
+try:
+    patient_name = unicode(sys.argv[1], "utf-8")
+except IndexError:
+    patient_name = unicode(raw_input("Patient name> "), "utf-8")
+
+
+for sample in c.find_by_name(patient_name):
     badanie = c.get_single_result(sample['url'])
 
     if CREATININE in badanie.keys() and plasma is None:
@@ -30,5 +36,8 @@ for sample in c.find_by_name(unicode(sys.argv[1], 'utf-8')):
         except ValueError:
             hours = 24
 
+        weight = float(raw_input('Weight (kg)> '))
+
         print "Clearance: %.2f ml/min" % (urine*ile_moczu/(plasma*hours*60))
+        print "Urine: %.2f ml/kg/H" % (ile_moczu/24.0/weight)
         break
