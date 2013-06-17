@@ -46,5 +46,6 @@ for sample in c.find_by_pesel(sys.argv[1]):
             if d < date_limit:
                 sys.exit(0)
 
-        values = [sys.argv[1], data, czas, sample['ID zlecenia'], b, badanie[b]['value'], badanie[b].get('units', '')]
+        values = [sys.argv[1], data, czas, sample['ID zlecenia'], b, badanie[b]['value'], badanie[b].get('units', ''),
+                  badanie[b].get('material', '')]
         print "\t".join([value.encode('utf-8') for value in values])

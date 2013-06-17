@@ -79,14 +79,26 @@ class Server:
         table = soup.find_all('table', width='100%', cellspacing='0', cellpadding='0', border='0')[3]
         assert(u'Wyniki badań' in table.text)
         ret = {}
+        current_material = ''
         for n, row in enumerate(table.find_all('tr')):
             values = []
             for m, col in enumerate(row.find_all('td')):
                 if col.text.strip():
                     values.append(col.text.strip())
 
+            if len(values) == 1:
+                if values[0] in [u'Akceptacja', u'Wynik zmieniony regułami']:
+                    continue
+
+                current_material = values[0]
+                continue
+
             if len(values)>=2:
                 if values[0] in [u'Wyniki badań', u'Autoryzacja']:
+                    continue
+
+                # If the field is empty, continue
+                if values[1] in ['mg/dL', 'mg/L']:
                     continue
 
                 ret[values[0]] = {'value': values[1]}
@@ -110,6 +122,12 @@ class Server:
                         _range = _range.replace("[", "").replace("]", "").strip().split("-")
                         ret[values[0]]['range-min'] = _range[0].strip()
                         ret[values[0]]['range-max'] = _range[1].strip()
+
+                ret[values[0]]['material'] = current_material
+
+                # Convert pluses to an integer number
+                if ret[values[0]]['value'].find("+") >= 0:
+                    ret[values[0]]['value'] = str(len(ret[values[0]]['value']))
 
         return ret
 
