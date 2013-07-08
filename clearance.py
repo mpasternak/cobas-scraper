@@ -7,6 +7,7 @@ import sys
 
 CREATININE = "Kreatynina"
 CREATININE_IN_URINE = 'Kreatynina w moczu'
+TIMESTAMP = "Data i godzina rejestracji"
 
 c = cobas.Server()
 c.login()
@@ -24,20 +25,43 @@ for sample in c.find_by_name(patient_name):
 
     if CREATININE in badanie.keys() and plasma is None:
         plasma = float(badanie[CREATININE]['value'])
+        plasma_dt = sample[TIMESTAMP]
 
     if CREATININE_IN_URINE in badanie.keys() and urine is None:
         urine = float(badanie[CREATININE_IN_URINE]['value'])
+        urine_dt = sample[TIMESTAMP]
 
     if urine is not None and plasma is not None:
-        ile_moczu = float(raw_input('Amount of urine (ml)> '))
+        while True:
+            try:
+                ile_moczu = float(raw_input('Amount of urine (ml)> '))
+                break
+            except ValueError:
+                pass
 
-        try:
-            hours = float(raw_input('Amount of hours (default=24)> '))
-        except ValueError:
-            hours = 24
+        while True:
+            s = raw_input('Amount of hours (default=24)> ')
+            if not s.strip():
+                hours = 24
+                break
+            try:
+                hours = float(s)
+                break
+            except ValueError:
+                pass
 
-        weight = float(raw_input('Weight (kg)> '))
+        while True:
+            try:
+                weight = float(raw_input('Weight (kg)> '))
+                break
+            except ValueError:
+                pass
 
-        print "Clearance: %.2f ml/min" % (urine*ile_moczu/(plasma*hours*60))
-        print "Urine: %.2f ml/kg/H" % (ile_moczu/24.0/weight)
+        print "\tClearance:         %.2f ml/min" % (urine*ile_moczu/(plasma*hours*60))
+        print "\tUrine:             %.2f ml/kg/H" % (ile_moczu/24.0/weight)
+        if plasma_dt == urine_dt:
+            print "\tTimestamp:        ", plasma_dt
+        else:
+            print "\tTimestamp urine:  ", urine_dt
+            print "\tTimestamp plasma: ", plasma_dt
         break
