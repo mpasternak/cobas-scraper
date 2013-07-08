@@ -66,8 +66,8 @@ class Server:
                 if n > 2 and m == 0:
                     url = col.find_all('a')[0]['href']
 
-                if col.text.strip():
-                    content.append(col.text.strip())
+                #if col.text.strip():
+                content.append(col.text.strip())
             content.append(url)
             if n == 2:
                 keys = content[:]
